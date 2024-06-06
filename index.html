@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatTTS 在线转换</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1, h3 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        textarea, input[type="text"], select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .speed-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .audio-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ChatTTS 在线转换</h1>
+        <h3>申请API联系微信号wehad2day</h3>
+        <form id="ttsForm">
+            <label for="textInput">Enter text:</label>
+            <textarea id="textInput" name="textInput" rows="4" cols="50" required></textarea>
+            
+            <label for="modelSelect">Select model:</label>
+            <select id="modelSelect" name="modelSelect" required>
+                <option value="tts-1">tts-1</option>
+                <option value="tts-1-hd">tts-1-hd</option>
+            </select>
+            
+            <label for="voiceSelect">Select voice:</label>
+            <select id="voiceSelect" name="voiceSelect" required>
+                <option value="alloy">alloy</option>
+                <option value="echo">echo</option>
+                <option value="fable">fable</option>
+                <option value="onyx">onyx</option>
+                <option value="nova">nova</option>
+                <option value="shimmer">shimmer</option>
+            </select>
+            
+            <label for="speedSelect">Select speed:</label>
+            <div class="speed-container">
+                <input type="range" id="speedSelect" name="speedSelect" min="0.25" max="4.0" step="0.01" value="1.0" required>
+                <input type="text" id="speedValue" style="width: 50px; text-align: center;" readonly>
+            </div>
+            
+            <label for="apiKeyInput">Enter API key:</label>
+            <input type="text" id="apiKeyInput" name="apiKeyInput" value="sk-Y1nI8vRDVrdwl9uc494e28C1E4B64b4096B576Ea5f4d99B8" required>
+            
+            <input type="submit" value="Convert to Speech">
+        </form>
+
+        <div class="audio-container">
+            <audio id="previewAudio" controls></audio>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('ttsForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            convertToSpeech();
+        });
+
+        document.getElementById('speedSelect').addEventListener('input', function() {
+            document.getElementById('speedValue').value = this.value;
+        });
+
+        function convertToSpeech() {
+            var text = document.getElementById('textInput').value;
+            var model = document.getElementById('modelSelect').value;
+            var voice = document.getElementById('voiceSelect').value;
+            var speed = parseFloat(document.getElementById('speedSelect').value);
+            var apiKey = document.getElementById('apiKeyInput').value;
+            var data = {
+                "model": model,
+                "input": text,
+                "voice": voice,
+                "speed": speed
+            };
+
+            console.log('Sending request:', data);
+
+            fetch('https://duanyun.ltd:6999/v1/audio/speech', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + apiKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                console.log('Response received:', response);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error('Network response was not ok: ' + response.status + ' ' + response.statusText + ' ' + text);
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                console.log('Blob received:', blob);
+                var url = URL.createObjectURL(blob);
+                console.log('Blob URL:', url);
+                document.getElementById('previewAudio').src = url;
+                document.getElementById('previewAudio').load();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>
