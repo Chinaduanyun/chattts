@@ -95,7 +95,7 @@
             </div>
             
             <label for="apiKeyInput">Enter API key:</label>
-            <input type="text" id="apiKeyInput" name="apiKeyInput" value="sk-Y1nI8vRDVrdwl9uc494e28C1E4B64b4096B576Ea5f4d99B8" required>
+            <input type="text" id="apiKeyInput" name="apiKeyInput" value="sk-******" required>  #输入你的令牌
             
             <input type="submit" value="Convert to Speech">
         </form>
@@ -130,7 +130,7 @@
 
             console.log('Sending request:', data);
 
-            fetch('https://duanyun.ltd:6999/v1/audio/speech', {
+            fetch('https://*****/v1/audio/speech', { #修改请求的地址
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + apiKey,
